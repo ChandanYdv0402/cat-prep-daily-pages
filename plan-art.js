@@ -1,10 +1,10 @@
 "use strict";
 
 (() => {
-  const ink = "#252925";
-  const slate = "#657881";
-  const wash = "#dbe2e4";
-  const paper = "#f8f8f4";
+  const ink = "#282828";
+  const graphite = "#717171";
+  const wash = "#dfdfdf";
+  const paper = "#f8f8f8";
 
   window.createPlanArtwork = function (index) {
     const canvas = document.createElement("canvas");
@@ -55,7 +55,7 @@
 
     function dashed(x1, y1, x2, y2) {
       ctx.setLineDash([4, 5]);
-      line([[x1, y1], [x2, y2]], slate);
+      line([[x1, y1], [x2, y2]], graphite);
       ctx.setLineDash([]);
     }
 
@@ -72,15 +72,15 @@
         ctx.fillStyle = wash;
         ctx.fillRect(71, 91, 52, 53);
         ctx.fillRect(177, 110, 52, 34);
-        line([[71, 91], [123, 91]], slate);
-        line([[177, 110], [229, 110]], slate);
+        line([[71, 91], [123, 91]], graphite);
+        line([[177, 110], [229, 110]], graphite);
         line([[124, 130], [176, 130]]);
         circle(150, 130, 9, paper);
-        line([[147, 127], [153, 130], [147, 133]], slate);
+        line([[147, 127], [153, 130], [147, 133]], graphite);
       },
       () => {
-        line([[55, 130], [247, 130]], slate);
-        line([[150, 41], [150, 154]], slate);
+        line([[55, 130], [247, 130]], graphite);
+        line([[150, 41], [150, 154]], graphite);
         const curve = Array.from({ length: 41 }, (_, i) => {
           const x = 65 + i * 4.25;
           return [x, 146 - (x - 150) ** 2 / 78];
@@ -110,7 +110,7 @@
         dashed(58, 142, 241, 142);
       },
       () => {
-        line([[61, 150], [239, 150]], slate);
+        line([[61, 150], [239, 150]], graphite);
         const steps = [[67, 137], [108, 117], [149, 97], [190, 77], [231, 57]];
         line(steps);
         steps.forEach(([x, y]) => {
@@ -127,7 +127,7 @@
         ctx.fill();
         for (const x of [68, 95, 122, 150, 177, 205, 232]) {
           for (const y of [54, 80, 106, 133]) {
-            ctx.fillStyle = slate;
+            ctx.fillStyle = graphite;
             ctx.fillRect(x - 1, y - 1, 2, 2);
           }
         }
@@ -156,7 +156,7 @@
         [64, 92, 120].forEach((y, i) => {
           box(99, y - 7, 14, 14);
           if (i < 2) line([[101, y], [105, y + 4], [112, y - 4]]);
-          line([[126, y], [189 - i * 8, y]], slate);
+          line([[126, y], [189 - i * 8, y]], graphite);
         });
       },
     ];

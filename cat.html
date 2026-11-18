@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2e2e2e">
+  <meta name="description" content="Ten days of CAT practice with worked solutions for QA, DILR and VARC.">
+  <title>CAT Prep Daily</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="calendar.css">
+  <script src="question-bank.js" defer></script>
+  <script src="plan-art.js" defer></script>
+  <script src="calendar.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Chandan's dashboard</a>
+      <nav class="primary-nav" aria-label="Main navigation">
+        <a href="./">Coding</a>
+        <a href="cat.html" aria-current="page">CAT</a>
+      </nav>
+    </div>
+  </header>
+  <main class="workspace" id="main">
+    <nav class="cat-nav primary-nav" aria-label="CAT practice">
+      <button id="schedule-tab" type="button" aria-controls="schedule-view">Schedule</button>
+      <button id="today-tab" type="button" aria-controls="practice-view">Today</button>
+    </nav>
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-inner">
+        <p id="hero-date" class="hero-date"></p>
+        <h1 id="page-title" tabindex="-1">The CAT practice plan</h1>
+        <p id="hero-summary" class="hero-summary"></p>
+      </div>
+      <dl class="hero-breakdown" aria-label="Questions per day">
+        <div><dt><abbr title="Quantitative Aptitude">QA</abbr></dt><dd>5</dd></div>
+        <div><dt><abbr title="Data Interpretation and Logical Reasoning">DILR</abbr></dt><dd>3</dd></div>
+        <div><dt><abbr title="Verbal Ability and Reading Comprehension">VARC</abbr></dt><dd>2</dd></div>
+      </dl>
+    </section>
+    <section id="schedule-view" aria-labelledby="schedule-title" hidden>
+      <div class="section-heading schedule-heading">
+        <h2 id="schedule-title">Practice schedule</h2>
+        <p id="schedule-status"></p>
+      </div>
+      <details class="cat-month">
+        <summary>CAT calendar</summary>
+        <div class="cat-month-content">
+          <div id="cat-calendar" class="month-calendar"></div>
+          <div id="cat-calendar-day" class="cal-day"></div>
+        </div>
+      </details>
+      <ol id="schedule-list" class="plan-overview"></ol>
+    </section>
+    <div id="practice-view" class="practice-layout" hidden>
+      <div class="practice-column">
+        <section id="questions" aria-labelledby="questions-title">
+          <div class="section-heading">
+            <h2 id="questions-title">Practice questions</h2>
+            <a id="solutions-link" class="jump-link" href="#solutions">Go to solutions <span aria-hidden="true">↓</span></a>
+          </div>
+          <div id="question-list"></div>
+        </section>
+        <section id="solutions" class="solutions" aria-labelledby="solutions-title">
+          <div class="section-heading">
+            <h2 id="solutions-title">Answers &amp; solutions</h2>
+            <button id="toggle-solutions" class="text-button" type="button" aria-controls="solution-list">Show all</button>
+          </div>
+          <div id="solution-list" class="solution-list"></div>
+        </section>
+      </div>
+      <aside class="sidebar" aria-label="Practice navigation">
+        <section class="side-card" aria-labelledby="calendar-title">
+          <h2 id="calendar-title">Practice calendar</h2>
+          <nav class="calendar" aria-label="Practice dates">
+            <button id="prev-day" type="button" class="arrow-button" aria-label="Previous practice day">‹</button>
+            <p id="selected-date" aria-live="polite"></p>
+            <button id="next-day" type="button" class="arrow-button" aria-label="Next practice day">›</button>
+          </nav>
+        </section>
+        <section class="side-card" aria-labelledby="progress-title">
+          <div class="side-heading">
+            <h2 id="progress-title">Your progress</h2>
+            <span id="progress-text" class="progress-text" aria-live="polite">0 / 0</span>
+          </div>
+          <progress id="progress-bar" value="0" max="1" aria-labelledby="progress-title"></progress>
+          <nav id="question-grid" class="question-grid" aria-label="Jump to a question"></nav>
+        </section>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

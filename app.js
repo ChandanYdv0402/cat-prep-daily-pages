@@ -45,6 +45,27 @@ let selections = {};
 let selectionKey = "";
 let pendingRevision = null;
 let cards = [];
+const catCalendarEvents = bank.sets.map((set, index) => ({
+  day: DashboardCalendar.keyForDay(firstDay + index), kind: "cat", name: set.focus,
+}));
+const updateCatCalendar = DashboardCalendar.mount(document.getElementById("cat-calendar"), {
+  legend: { cat: "Practice day" },
+  onDay(date, events) {
+    const detail = document.getElementById("cat-calendar-day");
+    detail.replaceChildren();
+    if (!date) return;
+    const day = DashboardCalendar.dayNumber(date);
+    detail.append(element("h4", "", DashboardCalendar.formatDay(date)), element("p", "", events[0].name));
+    if (day > today) {
+      detail.append(element("p", "calendar-note", "Opens at midnight IST"));
+      return;
+    }
+    const link = element("button", "text-button", "Open Day " + (day - firstDay + 1) + " ↗");
+    link.type = "button";
+    link.addEventListener("click", () => openPractice(day));
+    detail.append(link);
+  },
+});
 
 function storageKey(set, day) {
   return "cat-prep:" + set.id + ":" + day;
@@ -328,6 +349,7 @@ function render() {
     ui["page-title"].textContent = "The CAT practice plan";
     ui["hero-summary"].textContent = "Ten questions a day, with answers and worked solutions.";
     renderSchedule();
+    updateCatCalendar(catCalendarEvents);
     return;
   }
 
