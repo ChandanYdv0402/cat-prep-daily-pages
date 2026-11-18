@@ -1,12 +1,16 @@
 "use strict";
 
 (() => {
-  const ink = "#282828";
-  const graphite = "#717171";
-  const wash = "#dfdfdf";
-  const paper = "#f8f8f8";
+  const palettes = [
+    ["#28483c", "#54786a", "#b8d9c5", "#e7f0e3", "#ccdcd0"],
+    ["#5d4030", "#946f56", "#e7c0a1", "#f5e8d6", "#e6d4be"],
+    ["#453c64", "#786e96", "#cfc6e6", "#eeebf5", "#ded8e9"],
+    ["#3a5068", "#627f96", "#b8cee2", "#e7eef4", "#d2dde7"],
+  ];
+  const paletteOrder = [0, 1, 2, 3, 2, 0, 3, 1, 2, 0];
 
   window.createPlanArtwork = function (index) {
+    const [ink, guide, wash, paper, grid] = palettes[paletteOrder[index] ?? 0];
     const canvas = document.createElement("canvas");
     canvas.className = "plan-art";
     canvas.width = 600;
@@ -15,7 +19,22 @@
     const ctx = canvas.getContext("2d");
     if (!ctx) return canvas;
     ctx.scale(2, 2);
-    ctx.lineWidth = 1.4;
+    ctx.fillStyle = paper;
+    ctx.fillRect(0, 0, 300, 196);
+    ctx.strokeStyle = grid;
+    ctx.strokeRect(12.5, 12.5, 275, 171);
+    ctx.beginPath();
+    for (let x = 24; x < 288; x += 12) {
+      ctx.moveTo(x, 13);
+      ctx.lineTo(x, 183);
+    }
+    for (let y = 24; y < 183; y += 12) {
+      ctx.moveTo(13, y);
+      ctx.lineTo(287, y);
+    }
+    ctx.lineWidth = .45;
+    ctx.stroke();
+    ctx.lineWidth = 1.45;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
 
@@ -55,7 +74,7 @@
 
     function dashed(x1, y1, x2, y2) {
       ctx.setLineDash([4, 5]);
-      line([[x1, y1], [x2, y2]], graphite);
+      line([[x1, y1], [x2, y2]], guide);
       ctx.setLineDash([]);
     }
 
@@ -72,15 +91,15 @@
         ctx.fillStyle = wash;
         ctx.fillRect(71, 91, 52, 53);
         ctx.fillRect(177, 110, 52, 34);
-        line([[71, 91], [123, 91]], graphite);
-        line([[177, 110], [229, 110]], graphite);
+        line([[71, 91], [123, 91]], guide);
+        line([[177, 110], [229, 110]], guide);
         line([[124, 130], [176, 130]]);
         circle(150, 130, 9, paper);
-        line([[147, 127], [153, 130], [147, 133]], graphite);
+        line([[147, 127], [153, 130], [147, 133]], guide);
       },
       () => {
-        line([[55, 130], [247, 130]], graphite);
-        line([[150, 41], [150, 154]], graphite);
+        line([[55, 130], [247, 130]], guide);
+        line([[150, 41], [150, 154]], guide);
         const curve = Array.from({ length: 41 }, (_, i) => {
           const x = 65 + i * 4.25;
           return [x, 146 - (x - 150) ** 2 / 78];
@@ -110,7 +129,7 @@
         dashed(58, 142, 241, 142);
       },
       () => {
-        line([[61, 150], [239, 150]], graphite);
+        line([[61, 150], [239, 150]], guide);
         const steps = [[67, 137], [108, 117], [149, 97], [190, 77], [231, 57]];
         line(steps);
         steps.forEach(([x, y]) => {
@@ -127,7 +146,7 @@
         ctx.fill();
         for (const x of [68, 95, 122, 150, 177, 205, 232]) {
           for (const y of [54, 80, 106, 133]) {
-            ctx.fillStyle = graphite;
+            ctx.fillStyle = guide;
             ctx.fillRect(x - 1, y - 1, 2, 2);
           }
         }
@@ -156,7 +175,7 @@
         [64, 92, 120].forEach((y, i) => {
           box(99, y - 7, 14, 14);
           if (i < 2) line([[101, y], [105, y + 4], [112, y - 4]]);
-          line([[126, y], [189 - i * 8, y]], graphite);
+          line([[126, y], [189 - i * 8, y]], guide);
         });
       },
     ];

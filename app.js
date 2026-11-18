@@ -178,6 +178,7 @@ function questionCard(question, section, number) {
 
   const meta = element("div", "question-meta");
   const tag = element("span", "tag", section);
+  tag.dataset.section = section;
   meta.append(element("span", "number", "Q" + String(number).padStart(2, "0")), tag);
   if (question.topic) meta.append(element("span", "question-topic", question.topic));
   if (question.originalDay) meta.append(element("span", "question-origin", "From Day " + question.originalDay));
@@ -370,6 +371,7 @@ function render() {
   const grid = document.createDocumentFragment();
   for (const group of set.groups) {
     const heading = element("div", "group-heading");
+    heading.dataset.section = group.section;
     heading.append(
       element("h3", "", sectionNames[group.section]),
       element("span", "", group.questions.length + " questions · " + group.minutes + " min"),

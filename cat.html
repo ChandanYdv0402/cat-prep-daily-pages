@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#2e2e2e">
+  <meta name="theme-color" content="#252623">
   <meta name="description" content="Ten days of CAT practice with worked solutions for QA, DILR and VARC.">
   <title>CAT Prep Daily</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="calendar.css">
-  <script src="question-bank.js" defer></script>
-  <script src="plan-art.js" defer></script>
-  <script src="calendar.js" defer></script>
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="styles.css?v=2cd188abfd91">
+  <link rel="stylesheet" href="calendar.css?v=2cd188abfd91">
+  <script src="question-bank.js?v=2cd188abfd91" defer></script>
+  <script src="plan-art.js?v=2cd188abfd91" defer></script>
+  <script src="calendar.js?v=2cd188abfd91" defer></script>
+  <script src="app.js?v=2cd188abfd91" defer></script>
 </head>
-<body>
+<body class="cat-page">
   <a class="skip" href="#main">Skip to content</a>
   <header class="masthead">
     <div class="masthead-inner">
@@ -36,9 +36,9 @@
         <p id="hero-summary" class="hero-summary"></p>
       </div>
       <dl class="hero-breakdown" aria-label="Questions per day">
-        <div><dt><abbr title="Quantitative Aptitude">QA</abbr></dt><dd>5</dd></div>
-        <div><dt><abbr title="Data Interpretation and Logical Reasoning">DILR</abbr></dt><dd>3</dd></div>
-        <div><dt><abbr title="Verbal Ability and Reading Comprehension">VARC</abbr></dt><dd>2</dd></div>
+        <div data-section="QA"><dt><abbr title="Quantitative Aptitude">QA</abbr></dt><dd>5</dd></div>
+        <div data-section="DILR"><dt><abbr title="Data Interpretation and Logical Reasoning">DILR</abbr></dt><dd>3</dd></div>
+        <div data-section="VARC"><dt><abbr title="Verbal Ability and Reading Comprehension">VARC</abbr></dt><dd>2</dd></div>
       </dl>
     </section>
     <section id="schedule-view" aria-labelledby="schedule-title" hidden>

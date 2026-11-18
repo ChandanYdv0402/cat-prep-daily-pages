@@ -54,6 +54,7 @@
     const player = mine() ?? { accounts: {}, stats: {} };
     const items = Object.entries(data.platforms).map(([platform, info]) => {
       const item = node("li", "profile-card");
+      item.dataset.platform = platform;
       const heading = node("div", "profile-heading");
       heading.append(tag(platform), node("h3", "", info.title));
       const handle = player.accounts[platform];
@@ -144,6 +145,7 @@
       }
     }
     const pane = byId("coding-heatmap");
+    pane.dataset.platform = selected;
     const scroll = node("div", "heat-scroll");
     const grid = node("div", "heat-grid");
     const weekdays = node("div", "heat-week heat-days");
@@ -255,6 +257,7 @@
     }
     if (countdownContest !== next) {
       countdownContest = next;
+      target.dataset.platform = next.kind;
       const heading = node("div", "next-contest-name");
       heading.append(tag(next.kind), externalLink(next.name, next.url));
       const timer = node("div", "contest-timer");
