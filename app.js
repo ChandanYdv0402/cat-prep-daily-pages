@@ -13,6 +13,11 @@ const fullDate = new Intl.DateTimeFormat("en-IN", {
 const shortDate = new Intl.DateTimeFormat("en-IN", {
   timeZone: "UTC", weekday: "short", day: "numeric", month: "short",
 });
+const sectionNames = {
+  QA: "Quantitative Aptitude",
+  DILR: "Data Interpretation and Logical Reasoning",
+  VARC: "Verbal Ability and Reading Comprehension",
+};
 
 function currentDay(now = new Date()) {
   const parts = Object.fromEntries(indiaDate.formatToParts(now).map(({ type, value }) => [type, value]));
@@ -27,13 +32,15 @@ function element(tag, className, content) {
 }
 
 const ui = Object.fromEntries([
-  "hero-date", "page-title", "hero-summary", "questions-title", "solutions-link",
+  "hero-date", "page-title", "hero-summary", "schedule-tab", "today-tab",
+  "schedule-view", "schedule-status", "schedule-list", "practice-view",
   "question-list", "solutions", "solution-list", "toggle-solutions", "prev-day",
-  "next-day", "selected-date", "today-button", "progress-card", "progress-text", "progress-bar", "question-grid",
+  "next-day", "selected-date", "progress-text", "progress-bar", "question-grid",
 ].map(id => [id, document.getElementById(id)]));
 
 let today = currentDay();
 let selectedDay = today;
+let viewingSchedule = false;
 let selections = {};
 let selectionKey = "";
 let pendingRevision = null;
@@ -150,9 +157,8 @@ function questionCard(question, section, number) {
 
   const meta = element("div", "question-meta");
   const tag = element("span", "tag", section);
-  tag.dataset.section = section;
   meta.append(element("span", "number", "Q" + String(number).padStart(2, "0")), tag);
-  if (question.topic) meta.append(element("span", "number", question.topic));
+  if (question.topic) meta.append(element("span", "question-topic", question.topic));
   if (question.originalDay) meta.append(element("span", "question-origin", "From Day " + question.originalDay));
 
   const field = element("fieldset");
@@ -167,7 +173,8 @@ function questionCard(question, section, number) {
       input.value = String(index);
       input.checked = selections[number] === input.value;
       input.addEventListener("change", () => saveSelection(number, input.value));
-      row.append(input, element("span", "choice-copy", String.fromCharCode(65 + index) + ". " + option));
+      const letter = element("span", "choice-letter", String.fromCharCode(65 + index));
+      row.append(input, letter, element("span", "choice-copy", option));
       choices.append(row);
     });
     field.append(choices);
@@ -188,7 +195,12 @@ function questionCard(question, section, number) {
 
 function solutionCard(question, number, feedback) {
   const card = element("details");
-  card.append(element("summary", "", "Question " + number));
+  const summary = element("summary");
+  summary.append(
+    element("span", "solution-number", "Q" + String(number).padStart(2, "0")),
+    element("span", "solution-topic", question.topic),
+  );
+  card.append(summary);
   const body = element("div", "solution-body");
   body.append(
     element("strong", "answer", question.answer),
@@ -257,93 +269,106 @@ function updateProgress() {
   ui["progress-text"].textContent = answered + " / " + cards.length;
 }
 
-function planOverview() {
-  const card = element("div", "empty-state");
-  const message = selectedDay < firstDay
-    ? "Day 1 opens on " + fullDate.format(firstDay * dayLength) + " at midnight India time."
-    : "The ten-day plan is complete. Select any date to revisit its questions and solutions.";
-  card.append(element("p", "", message));
-  const list = element("ol", "plan-overview");
+function openPractice(day) {
+  selectedDay = day;
+  viewingSchedule = false;
+  render();
+  ui["page-title"].focus();
+}
+
+function renderSchedule() {
+  ui["schedule-status"].textContent = today < firstDay
+    ? "Day 1 opens 19 November at midnight IST"
+    : today > lastDay ? "All 10 days are open for review" : "New sets open at midnight IST";
+  const list = document.createDocumentFragment();
   bank.sets.forEach((set, index) => {
     const day = firstDay + index;
-    const item = element("li", "plan-row");
-    const label = element("span", "plan-date", shortDate.format(day * dayLength));
-    const focus = element("span", "plan-focus", set.focus);
-    if (day <= today) {
-      const button = element("button", "plan-button");
-      button.type = "button";
-      button.append(label, focus);
-      button.addEventListener("click", () => {
-        selectedDay = day;
-        render();
-        ui["page-title"].focus();
-      });
-      item.append(button);
-    } else {
-      item.append(label, focus);
+    const date = new Date(day * dayLength);
+    const released = day <= today;
+    const item = element("li", "plan-item");
+    const card = element(released ? "button" : "div", "plan-card");
+    if (released) {
+      card.type = "button";
+      card.addEventListener("click", () => openPractice(day));
     }
+    const meta = element("span", "plan-meta");
+    const dayNumber = element("span", "plan-day", "Day " + String(index + 1).padStart(2, "0"));
+    const time = element("time", "plan-date", shortDate.format(date));
+    time.dateTime = date.toISOString().slice(0, 10);
+    meta.append(dayNumber, time);
+    const title = element("span", "plan-focus");
+    title.append(element("span", "", set.focus));
+    if (released) {
+      const arrow = element("span", "plan-arrow", "↗");
+      arrow.setAttribute("aria-hidden", "true");
+      title.append(arrow);
+    }
+    card.append(window.createPlanArtwork(index), meta, title);
+    item.append(card);
     list.append(item);
   });
-  card.append(list);
-  return card;
+  ui["schedule-list"].replaceChildren(list);
 }
 
 function render() {
   pendingRevision = null;
-  const scheduled = bank.sets[selectedDay - firstDay];
+  const scheduled = viewingSchedule ? undefined : bank.sets[selectedDay - firstDay];
   const set = scheduled?.revision ? buildRevision(scheduled) : scheduled;
-  const date = new Date(selectedDay * dayLength);
-  ui["hero-date"].textContent = fullDate.format(date);
-  ui["page-title"].textContent = set ? "Day " + (selectedDay - firstDay + 1) + (set.revision ? " · Revision" : " · Practice") : "CAT 2026 practice plan";
-  ui["questions-title"].textContent = set ? "Practice questions" : "10-day schedule";
-  ui["selected-date"].textContent = shortDate.format(date);
-  const latestReleased = Math.min(today, lastDay);
-  ui["prev-day"].disabled = Math.min(selectedDay - 1, latestReleased) < firstDay;
-  ui["next-day"].disabled = selectedDay >= latestReleased;
-  ui["today-button"].hidden = selectedDay === today;
-
-  ui["question-list"].replaceChildren();
-  ui["solution-list"].replaceChildren();
-  ui["question-grid"].replaceChildren();
-  ui["solutions"].hidden = !set;
-  ui["solutions-link"].hidden = !set;
-  ui["progress-card"].hidden = !set;
+  const isToday = Boolean(set && selectedDay === today);
+  ui["schedule-view"].hidden = Boolean(set);
+  ui["practice-view"].hidden = !set;
+  ui["today-tab"].disabled = today < firstDay || today > lastDay;
+  ui["schedule-tab"].setAttribute("aria-current", set ? "false" : "page");
+  ui["today-tab"].setAttribute("aria-current", isToday ? "page" : "false");
   cards = [];
   selections = {};
 
-  if (set) {
-    selectionKey = storageKey(set, selectedDay);
-    selections = readSelections(selectionKey);
-    const questions = document.createDocumentFragment();
-    const solutions = document.createDocumentFragment();
-    const grid = document.createDocumentFragment();
-    for (const group of set.groups) {
-      const heading = element("div", "group-heading");
-      heading.append(element("h3", "", group.section), element("span", "", group.questions.length + " questions · " + group.minutes + " min"));
-      questions.append(heading);
-      if (group.context) questions.append(contextCard(group));
-      for (const question of group.questions) {
-        const number = cards.length + 1;
-        const card = questionCard(question, group.section, number);
-        const link = element("a", "", number);
-        link.href = "#" + card.id;
-        const feedback = element("p", "response-feedback");
-        questions.append(card);
-        solutions.append(solutionCard(question, number, feedback));
-        grid.append(link);
-        cards.push({ link, question, feedback });
-      }
-    }
-    ui["question-list"].append(questions);
-    ui["solution-list"].append(solutions);
-    ui["question-grid"].append(grid);
-    ui["hero-summary"].textContent = set.revision
-      ? "10 questions drawn from Days 1–9, with missed and skipped questions first."
-      : cards.length + " original CAT-style questions · " + set.focus;
-  } else {
-    ui["hero-summary"].textContent = "19–28 November · 10 questions per day";
-    ui["question-list"].append(planOverview());
+  if (!set) {
+    ui["hero-date"].textContent = "19–28 November 2026";
+    ui["page-title"].textContent = "The CAT practice plan";
+    ui["hero-summary"].textContent = "Ten questions a day, with answers and worked solutions.";
+    renderSchedule();
+    return;
   }
+
+  const date = new Date(selectedDay * dayLength);
+  ui["hero-date"].textContent = "Day " + (selectedDay - firstDay + 1) + " of 10 · " + fullDate.format(date);
+  ui["page-title"].textContent = set.revision ? "Revision day" : set.focus;
+  ui["hero-summary"].textContent = set.revision
+    ? "Ten questions from Days 1–9, with missed and skipped questions first."
+    : "Ten CAT-style questions with worked solutions.";
+  ui["selected-date"].textContent = shortDate.format(date);
+  ui["prev-day"].disabled = selectedDay <= firstDay;
+  ui["next-day"].disabled = selectedDay >= Math.min(today, lastDay);
+  selectionKey = storageKey(set, selectedDay);
+  selections = readSelections(selectionKey);
+
+  const questions = document.createDocumentFragment();
+  const solutions = document.createDocumentFragment();
+  const grid = document.createDocumentFragment();
+  for (const group of set.groups) {
+    const heading = element("div", "group-heading");
+    heading.append(
+      element("h3", "", sectionNames[group.section]),
+      element("span", "", group.questions.length + " questions · " + group.minutes + " min"),
+    );
+    questions.append(heading);
+    if (group.context) questions.append(contextCard(group));
+    for (const question of group.questions) {
+      const number = cards.length + 1;
+      const card = questionCard(question, group.section, number);
+      const link = element("a", "", number);
+      link.href = "#" + card.id;
+      const feedback = element("p", "response-feedback");
+      questions.append(card);
+      solutions.append(solutionCard(question, number, feedback));
+      grid.append(link);
+      cards.push({ link, question, feedback });
+    }
+  }
+  ui["question-list"].replaceChildren(questions);
+  ui["solution-list"].replaceChildren(solutions);
+  ui["question-grid"].replaceChildren(grid);
   updateProgress();
   updateSolutionToggle();
 }
@@ -363,11 +388,12 @@ ui["next-day"].addEventListener("click", () => {
   selectedDay += 1;
   render();
 });
-ui["today-button"].addEventListener("click", () => {
-  selectedDay = today;
+ui["schedule-tab"].addEventListener("click", () => {
+  viewingSchedule = true;
   render();
-  ui["page-title"].scrollIntoView();
+  ui["page-title"].focus();
 });
+ui["today-tab"].addEventListener("click", () => openPractice(today));
 
 function refreshToday() {
   const newDay = currentDay();
